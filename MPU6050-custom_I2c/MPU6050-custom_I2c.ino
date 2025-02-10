@@ -6,6 +6,7 @@
    Install via Arduino Library Manager:
      Sketch -> Include Library -> Manage Libraries -> Search "MPU6050_tockn"
 */
+#define LED_BUILTIN 4
 
 #include <Wire.h>
 #include <MPU6050_tockn.h>
@@ -13,6 +14,7 @@
 MPU6050 mpu(Wire);
 
 void setup() {
+  pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(115200);
   delay(100);
 
@@ -21,37 +23,30 @@ void setup() {
   Wire.begin(15, 14, 100000);
 
   // Initialize MPU6050
+  analogWrite(LED_BUILTIN, 10);
   mpu.begin();
   // Optional: calibrate gyro offsets while printing details
   mpu.calcGyroOffsets(true);
+  analogWrite(LED_BUILTIN, 0);
 
   Serial.println("MPU6050 initialized and calibrated.");
 }
 
 void loop() {
-  // Update MPU6050 data
+  // Update the MPU6050 data
   mpu.update();
 
-  // Print the raw data
-  Serial.print("Temp = ");
-  Serial.print(mpu.getTemp());
-  Serial.print("°C, ");
+  // Prepare CSV line in the format:
+  // AccX,AccY,AccZ,GyroX,GyroY,GyroZ,Temp
+  String dataString = String(mpu.getAccX()) + "," +
+                      String(mpu.getAccY()) + "," +
+                      String(mpu.getAccZ()) + "," +
+                      String(mpu.getGyroX()) + "," +
+                      String(mpu.getGyroY()) + "," +
+                      String(mpu.getGyroZ()) + "," +
+                      String(mpu.getTemp());
 
-  Serial.print("AccX = ");
-  Serial.print(mpu.getAccX());
-  Serial.print(", AccY = ");
-  Serial.print(mpu.getAccY());
-  Serial.print(", AccZ = ");
-  Serial.print(mpu.getAccZ());
-  Serial.print(", ");
+  Serial.println(dataString);
 
-  Serial.print("GyroX = ");
-  Serial.print(mpu.getGyroX());
-  Serial.print(", GyroY = ");
-  Serial.print(mpu.getGyroY());
-  Serial.print(", GyroZ = ");
-  Serial.print(mpu.getGyroZ());
-  Serial.println();
-
-  delay(100);  // Adjust delay as needed
+  delay(20); // ~50Hz data rate (adjust as needed)
 }
