@@ -6,8 +6,8 @@ MPU6050 mpu(Wire);
 
 WiFiServer server(8888);
 
-const char* ssid     = "SK_7458_2.4G";
-const char* password = "HYV21@0527";
+const char* ssid     = "FMCL";
+const char* password = "66955144";
 
 int counter = 0;
 
@@ -20,6 +20,10 @@ void setup() {
     Serial.print(".");
   }
   Serial.println("\nWiFi connected");
+
+  Serial.print("Camera Ready! Use 'http://");
+  Serial.print(WiFi.localIP());
+  Serial.println("' to connect");
 
   server.begin();  // Start listening on port 8888
   Serial.println("Server started, waiting for client...");
@@ -36,20 +40,20 @@ void loop() {
         while(client.connected()){
             // Update the MPU6050 data
             mpu.update();
-            String dataString = String(mpu.getAccX()) + "," +
-                                String(mpu.getAccY()) + "," +
-                                String(mpu.getAccZ()) + "," +
-                                String(mpu.getGyroX()) + "," +
-                                String(mpu.getGyroY()) + "," +
-                                String(mpu.getGyroZ()) + "," +
-                                String(mpu.getTemp());
+            float dataOut [6];
+            dataOut[0] = mpu.getAccX();
+            dataOut[1] = mpu.getAccY();
+            dataOut[2] = mpu.getAccZ();
+            dataOut[3] = mpu.getGyroX();
+            dataOut[4] = mpu.getGyroY();
+            dataOut[5] = mpu.getGyroZ();
+            //dataOut[6] = mpu.getTemp();
 
 
-            Serial.print("sending");
-            Serial.println(dataString);
+            Serial.println("sending");
+            Serial.println(String(dataOut[0]));
             // Once connected, send data
-            client.println(dataString);
-            counter++;
+            client.write(reinterpret_cast<uint8_t*>(dataOut), sizeof(dataOut));
             delay(20);
         }
     }
