@@ -1,1 +1,3 @@
 *.code-workspace
+*.autosave
+Simulink/slprj
