@@ -36,8 +36,8 @@
 // ===========================
 // Enter your WiFi credentials
 // ===========================
-const char *ssid = "SK_7458_2.4G";
-const char *password = "HYV21@0527";
+const char *ssid = "FMCL";
+const char *password = "66955144";
 
 void startCameraServer();
 void setupLedFlash(int pin);
