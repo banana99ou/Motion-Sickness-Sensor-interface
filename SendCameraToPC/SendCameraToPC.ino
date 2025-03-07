@@ -1,70 +1,185 @@
-// Create a union to easily convert float to byte
-typedef union{
+#include "esp_camera.h"
+
+//
+// WARNING!!! PSRAM IC required for UXGA resolution and high JPEG quality
+//            Ensure ESP32 Wrover Module or other board with PSRAM is selected
+//            Partial images will be transmitted if image exceeds buffer size
+//
+//            You must select partition scheme from the board menu that has at least 3MB APP space.
+//            Face Recognition is DISABLED for ESP32 and ESP32-S2, because it takes up from 15
+//            seconds to process single frame. Face Detection is ENABLED if PSRAM is enabled as well
+
+// ===================
+// Select camera model
+// ===================
+//#define CAMERA_MODEL_WROVER_KIT // Has PSRAM
+//#define CAMERA_MODEL_ESP_EYE  // Has PSRAM
+//#define CAMERA_MODEL_ESP32S3_EYE // Has PSRAM
+//#define CAMERA_MODEL_M5STACK_PSRAM // Has PSRAM
+//#define CAMERA_MODEL_M5STACK_V2_PSRAM // M5Camera version B Has PSRAM
+//#define CAMERA_MODEL_M5STACK_WIDE // Has PSRAM
+//#define CAMERA_MODEL_M5STACK_ESP32CAM // No PSRAM
+//#define CAMERA_MODEL_M5STACK_UNITCAM // No PSRAM
+//#define CAMERA_MODEL_M5STACK_CAMS3_UNIT  // Has PSRAM
+#define CAMERA_MODEL_AI_THINKER // Has PSRAM
+//#define CAMERA_MODEL_TTGO_T_JOURNAL // No PSRAM
+//#define CAMERA_MODEL_XIAO_ESP32S3 // Has PSRAM
+// ** Espressif Internal Boards **
+//#define CAMERA_MODEL_ESP32_CAM_BOARD
+//#define CAMERA_MODEL_ESP32S2_CAM_BOARD
+//#define CAMERA_MODEL_ESP32S3_CAM_LCD
+//#define CAMERA_MODEL_DFRobot_FireBeetle2_ESP32S3 // Has PSRAM
+//#define CAMERA_MODEL_DFRobot_Romeo_ESP32S3 // Has PSRAM
+#include "camera_pins.h"
+
+void setupLedFlash(int pin);
+
+#define TEST_PIN1 14
+#define TEST_PIN2 15
+
+//===================================================
+// 1) Union for converting a single byte into 4 bytes of float
+//    (matching the "template" style you used before).
+//===================================================
+typedef union {
   float number;
   uint8_t bytes[4];
 } FLOATUNION_t;
 
-// Create the variable you want to send
+// We'll reuse this union each time we send one byte as a float
 FLOATUNION_t myValue;
 
-// Hard-coded 14x14 MJPEG image data (dummy example)
-// A valid JPEG file always starts with 0xFF,0xD8 (SOI) and ends with 0xFF,0xD9 (EOI).
-// Replace the following array with your actual MJPEG frame data.
-static uint8_t imageData[14 * 14] = {
-  0xFF, 0xD8,             // SOI marker
-  // --- JFIF header (example) ---
-  0xFF, 0xE0, 0x00, 0x10, 
-  'J', 'F', 'I', 'F', 0x00,
-  0x01, 0x02, 0x01, 0x00, 0x48, 0x00, 0x48, 0x00, 0x00,
-  // --- Quantization Table (dummy) ---
-  0xFF, 0xDB, 0x00, 0x43,
-  /* (Quantization table data would go here) */
-  // --- Start Of Frame (SOF) marker ---
-  0xFF, 0xC0, 0x00, 0x11, 
-  0x08,                   // Sample precision
-  0x00, 0x0E,             // Image height = 14
-  0x00, 0x0E,             // Image width = 14
-  0x03,                   // Number of components
-  0x01, 0x11, 0x00,       // Component 1
-  0x02, 0x11, 0x01,       // Component 2
-  0x03, 0x11, 0x01,       // Component 3
-  // --- Huffman Table (dummy) ---
-  0xFF, 0xC4, 0x00, 0x14,
-  /* (Huffman table data would go here) */
-  // --- Start Of Scan (SOS) ---
-  0xFF, 0xDA, 0x00, 0x0C, 
-  0x03, 0x01, 0x00, 0x02, 0x11, 0x03, 0x11, 
-  0x00, 0x3F, 0x00,
-  // --- Compressed image data (dummy minimal data) ---
-  0x00, 0x11, 0x22, 0x33, 0x44,
-  // --- End Of Image (EOI) ---
-  0xFF, 0xD9
-};
-
+//===================================================
+// 3) Setup: Start Serial and Init Camera
+//===================================================
 void setup() {
   Serial.begin(115200);
-  // Optional: Wait for the Serial port to be available.
-  while (!Serial) { /* wait */ }
-  
-  // Debug message (can be removed if not needed)
-  Serial.println("Sending hard-coded 14x14 MJPEG image frame...");
+  Serial.setDebugOutput(true);
+  Serial.println();
+
+  camera_config_t config;
+  config.ledc_channel = LEDC_CHANNEL_0;
+  config.ledc_timer = LEDC_TIMER_0;
+  config.pin_d0 = Y2_GPIO_NUM;
+  config.pin_d1 = Y3_GPIO_NUM;
+  config.pin_d2 = Y4_GPIO_NUM;
+  config.pin_d3 = Y5_GPIO_NUM;
+  config.pin_d4 = Y6_GPIO_NUM;
+  config.pin_d5 = Y7_GPIO_NUM;
+  config.pin_d6 = Y8_GPIO_NUM;
+  config.pin_d7 = Y9_GPIO_NUM;
+  config.pin_xclk = XCLK_GPIO_NUM;
+  config.pin_pclk = PCLK_GPIO_NUM;
+  config.pin_vsync = VSYNC_GPIO_NUM;
+  config.pin_href = HREF_GPIO_NUM;
+  config.pin_sccb_sda = SIOD_GPIO_NUM;
+  config.pin_sccb_scl = SIOC_GPIO_NUM;
+  config.pin_pwdn = PWDN_GPIO_NUM;
+  config.pin_reset = RESET_GPIO_NUM;
+  config.xclk_freq_hz = 20000000;
+  config.frame_size = FRAMESIZE_UXGA;
+  config.pixel_format = PIXFORMAT_JPEG;  // for streaming
+  //config.pixel_format = PIXFORMAT_RGB565; // for face detection/recognition
+  config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
+  config.fb_location = CAMERA_FB_IN_PSRAM;
+  config.jpeg_quality = 12;
+  config.fb_count = 1;
+
+  // if PSRAM IC present, init with UXGA resolution and higher JPEG quality
+  //                      for larger pre-allocated frame buffer.
+  if (config.pixel_format == PIXFORMAT_JPEG) {
+    if (psramFound()) {
+      config.jpeg_quality = 10;
+      config.fb_count = 2;
+      config.grab_mode = CAMERA_GRAB_LATEST;
+    } else {
+      // Limit the frame size when PSRAM is not available
+      config.frame_size = FRAMESIZE_SVGA;
+      config.fb_location = CAMERA_FB_IN_DRAM;
+    }
+  } else {
+    // Best option for face detection/recognition
+    config.frame_size = FRAMESIZE_240X240;
+#if CONFIG_IDF_TARGET_ESP32S3
+    config.fb_count = 2;
+#endif
+  }
+
+#if defined(CAMERA_MODEL_ESP_EYE)
+  pinMode(13, INPUT_PULLUP);
+  pinMode(14, INPUT_PULLUP);
+#endif
+
+  // camera init
+  esp_err_t err = esp_camera_init(&config);
+  if (err != ESP_OK) {
+    Serial.printf("Camera init failed with error 0x%x", err);
+    return;
+  }
+
+  sensor_t *s = esp_camera_sensor_get();
+  // initial sensors are flipped vertically and colors are a bit saturated
+  if (s->id.PID == OV3660_PID) {
+    s->set_vflip(s, 1);        // flip it back
+    s->set_brightness(s, 1);   // up the brightness just a bit
+    s->set_saturation(s, -2);  // lower the saturation
+  }
+  // drop down frame size for higher initial frame rate
+  if (config.pixel_format == PIXFORMAT_JPEG) {
+    s->set_framesize(s, FRAMESIZE_QVGA);
+  }
+
+#if defined(CAMERA_MODEL_M5STACK_WIDE) || defined(CAMERA_MODEL_M5STACK_ESP32CAM)
+  s->set_vflip(s, 1);
+  s->set_hmirror(s, 1);
+#endif
+
+#if defined(CAMERA_MODEL_ESP32S3_EYE)
+  s->set_vflip(s, 1);
+#endif
+
+// Setup LED FLash if LED pin is defined in camera_pins.h
+#if defined(LED_GPIO_NUM)
+  setupLedFlash(LED_GPIO_NUM);
+#endif
+
+  pinMode(TEST_PIN1, OUTPUT);
+  pinMode(TEST_PIN2, OUTPUT);
+  digitalWrite(TEST_PIN1, HIGH);
+  digitalWrite(TEST_PIN2, HIGH);
 }
 
+//===================================================
+// 4) Loop: Capture frame + Send it over Serial
+//===================================================
 void loop() {
-  // Send a header character for synchronization
+  // 1) Grab a frame from the camera
+  camera_fb_t *fb = esp_camera_fb_get();
+  if (!fb) {
+    Serial.println("Camera capture failed");
+    delay(1000);
+    return;
+  }
+
+  // 2) Send header 'A' (just like your template)
   Serial.write('A');
 
-  // Send the image data over Serial
-  for (int row = 0; row < 14; row++) {
-    for (int col = 0; col < 14; col++) {
-      myValue.number = imageData[row * 14 + col];
-      for (int i=0; i<4; i++){
-        Serial.write(myValue.bytes[i]); 
-      }
+  // 3) Send all bytes of the JPEG frame, each as float( singleByte ), 4 bytes each.
+  //    The total number of floats you send is fb->len.
+  for (size_t i = 0; i < fb->len; i++) {
+    uint8_t singleByte = fb->buf[i];
+    myValue.number = singleByte;       // store that 0..255 into the union as a float
+    for (int b = 0; b < 4; b++) {
+      Serial.write(myValue.bytes[b]);  // send the 4 bytes of the float
     }
   }
-  
-  // Send a terminator (newline) to mark the end of the frame
+
+  // 4) Send terminator (newline)
   Serial.print('\n');
-  delay(100);
+
+  // 5) Return the frame buffer back to the driver
+  esp_camera_fb_return(fb);
+
+  // 6) Delay a bit so Simulink can keep up
+  delay(200);
 }
