@@ -1,3 +1,7 @@
 *.code-workspace
 *.autosave
 Simulink/slprj
+.venv
+.stignore
+MSI
+.DS_Store
