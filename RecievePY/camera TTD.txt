@@ -1,0 +1,2 @@
+Camera Time To Death
+1. 04:04.25 -> after cool down, it shows sign of damage . i.e. horizontal line artifact, small patch of burn-in 
