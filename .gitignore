@@ -5,3 +5,6 @@ Simulink/slprj
 .stignore
 MSI
 .DS_Store
+imu_data_*.csv
+video_*.avi
+recording_*
