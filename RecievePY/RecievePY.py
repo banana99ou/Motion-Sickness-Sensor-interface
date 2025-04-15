@@ -9,7 +9,7 @@ import datetime
 import os
 
 # ----- Configuration -----
-ESP32_IP = "192.168.0.71"  # Replace with your ESP32's actual IP
+ESP32_IP =  "192.168.0.71" #"10.42.0.231"  # "172.20.10.10" # Replace with your ESP32's actual IP
 IMU_WINDOW_SEC = 2.0       # Show last 2 seconds of IMU data
 RECORD_FPS = 30.0          # Assume 30 FPS for video recording
 save_data = True           # Set to True to record data
@@ -38,7 +38,7 @@ def imu_stream_thread():
     print(f"[IMU] Connecting to IMU stream at {stream_url}...")
     
     try:
-        with requests.get(stream_url, stream=True, timeout=2) as response:
+        with requests.get(stream_url, stream=True, timeout=10) as response:
             if response.status_code != 200:
                 print(f"[IMU] Error: Received status code {response.status_code} from IMU stream.")
                 return
@@ -83,7 +83,7 @@ def camera_and_display_thread():
     into a file if saving is enabled.
     """
     global video_writer, video_filename
-    stream_url = f"http://{ESP32_IP}:81/stream"
+    stream_url = f"http://{ESP32_IP}:8000/stream"
     cap = cv2.VideoCapture(stream_url)
     if not cap.isOpened():
         print(f"[Camera] Error: Unable to open camera stream at {stream_url}")
