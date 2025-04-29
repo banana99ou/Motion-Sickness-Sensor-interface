@@ -1,6 +1,7 @@
 *.code-workspace
 *.autosave
 Simulink/slprj
+MATLAB model/slprj
 .venv
 .stignore
 MSI
