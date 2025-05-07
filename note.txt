@@ -1,1 +1,6 @@
 Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Unrestricted
+
+test 1. apr 29th 
+camerea did not died for over an hour during camera only test.
+test was conducted using camera webserver example code.
+temparature was not hot to the touch. unlike RTOS integrated code.
