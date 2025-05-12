@@ -8,8 +8,8 @@
 #include "camera_pins.h"
 
 // Wi-Fi credentials
-const char* ssid = "FMCL"; // "HYJs_iPhone"; // "piAP"; //
-const char* password = "66955144"; // "12344321"; // "12344321"; //
+const char* ssid = "Quanser_UVS"; //"FMCL"; // "HYJs_iPhone"; // "piAP"; //
+const char* password = "UVS_wifi"; //"66955144"; // "12344321"; // "12344321"; //
 
 // Global variable to set the camera resolution.
 // Initially set to QVGA (320×240). To change the resolution later, change this variable
@@ -54,6 +54,9 @@ void setup() {
   config.jpeg_quality    = 12;
   config.fb_count        = 2;
   config.grab_mode       = CAMERA_GRAB_LATEST;
+
+  // sensor_t *s = esp_camera_sensor_get();
+  // s->set_vflip(s, 1);
 
   // Check for PSRAM
   if (!psramFound()){

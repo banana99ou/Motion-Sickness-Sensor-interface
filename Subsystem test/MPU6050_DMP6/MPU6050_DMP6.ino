@@ -291,7 +291,12 @@ void loop() {
             Serial.print("\t");
             Serial.print(ypr[1] * 180/M_PI);
             Serial.print("\t");
-            Serial.println(ypr[2] * 180/M_PI);
+            Serial.print(ypr[2] * 180/M_PI);Serial.print("\tgravity\t");
+            Serial.print(gravity.x, 3);   // 3 = number of digits after the decimal
+            Serial.print('\t');
+            Serial.print(gravity.y, 3);
+            Serial.print('\t');
+            Serial.println(gravity.z, 3); // println() adds the newline
         #endif
 
         #ifdef OUTPUT_READABLE_REALACCEL
