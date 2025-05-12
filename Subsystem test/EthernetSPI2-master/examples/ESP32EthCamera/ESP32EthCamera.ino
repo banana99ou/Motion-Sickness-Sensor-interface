@@ -76,7 +76,7 @@ IPAddress ip(192, 168, 89, 11);
 // Initialize the Ethernet server library
 // with the IP address and port you want to use
 // (port 80 is default for HTTP):
-EthernetServer server(81);
+EthernetServer server(80);
 
 void setup() {
   pinMode(LED, OUTPUT);
@@ -148,14 +148,13 @@ void setup() {
     Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
     while (true) {
       delay(200);
-      //digitalWrite(LED, HIGH);
-      //digitalWrite(FLED, HIGH);
+      digitalWrite(LED, HIGH);
+      digitalWrite(FLED, HIGH);
       delay(200);
-      //digitalWrite(LED, LOW);
-      //digitalWrite(FLED, LOW);
+      digitalWrite(LED, LOW);
+      digitalWrite(FLED, LOW);
     }
   }
-  Serial.println("Eth module found");
   while (Ethernet.linkStatus() == LinkOFF) {
     Serial.println("Ethernet cable is NOT connected.");
       delay(500);
@@ -265,46 +264,47 @@ void loop() {
     biolf = false;
 
     while (client.connected()) {
-      if (client.available()) {
-        char c = client.read();
-        //Serial.write(c);
+      // if (client.available()) {
+      //   char c = client.read();
+      //   //Serial.write(c);
 
-        if (c == '\n'){ //LF
-          if (biolf){
-            doubleblank = true; // \n\n
-            singleblank = true;
-          }
-          if (biocr){
-            if (singleblank) doubleblank = true; // \n\r\n
-            singleblank = true;
-          }
-          biolf = true;
-          biocr = false;
-        } else if (c == '\r'){ //CR
-          if (biocr){
-            doubleblank = true; //\r\r
-            singleblank = true;
-          }
-          if (biolf){
-            // \n\r
-          }
+      //   if (c == '\n'){ //LF
+      //     if (biolf){
+      //       doubleblank = true; // \n\n
+      //       singleblank = true;
+      //     }
+      //     if (biocr){
+      //       if (singleblank) doubleblank = true; // \n\r\n
+      //       singleblank = true;
+      //     }
+      //     biolf = true;
+      //     biocr = false;
+      //   } else if (c == '\r'){ //CR
+      //     if (biocr){
+      //       doubleblank = true; //\r\r
+      //       singleblank = true;
+      //     }
+      //     if (biolf){
+      //       // \n\r
+      //     }
           
-          biolf = false;
-          biocr = true;          
-        } else {
-          biolf = false;
-          biocr = false;
-          singleblank = false;
-          doubleblank = false;
-        }
+      //     biolf = false;
+      //     biocr = true;          
+      //   } else {
+      //     biolf = false;
+      //     biocr = false;
+      //     singleblank = false;
+      //     doubleblank = false;
+      //   }
 
-        if (doubleblank) {
-          stream_h(&client); // stream the jpeg's
-          singleblank = false;
-          doubleblank = false;          
-          break;
-        }
-      }
+      //   if (doubleblank) {
+      //     stream_h(&client); // stream the jpeg's
+      //     singleblank = false;
+      //     doubleblank = false;          
+      //     break;
+      //   }
+      // }
+      stream_h(&client); // stream the jpeg's
     }
     delay(10);
     client.stop();
