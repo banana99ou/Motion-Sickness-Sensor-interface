@@ -36,8 +36,8 @@
 // ===========================
 // Enter your WiFi credentials
 // ===========================
-const char *ssid = "piAP";
-const char *password = "12344321";
+const char *ssid = "FMCL";
+const char *password = "66955144";
 
 void startCameraServer();
 void setupLedFlash(int pin);

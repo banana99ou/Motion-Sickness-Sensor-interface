@@ -9,7 +9,7 @@ import datetime
 import os
 
 # ----- Configuration -----
-ESP32_IP = "192.168.0.71"  # Replace with your ESP32's actual IP
+ESP32_IP = "192.168.2.10"  # Replace with your ESP32's actual IP
 IMU_WINDOW_SEC = 2.0       # Show last 2 seconds of IMU data
 save_data = True           # Set to True to record data
 
