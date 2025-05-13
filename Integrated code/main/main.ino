@@ -3,13 +3,35 @@
 
 #define CAMERA_MODEL_AI_THINKER // Has PSRAM
 
+// #define WiFi_Quanser
+#define WiFi_FMCL
+// #define WiFi_HYJ
+// #define WiFi_piAP
+
 #include <Wire.h>
 #include <MPU6050_tockn.h>
 #include "camera_pins.h"
 
 // Wi-Fi credentials
-const char* ssid = "Quanser_UVS"; //"FMCL"; // "HYJs_iPhone"; // "piAP"; //
-const char* password = "UVS_wifi"; //"66955144"; // "12344321"; // "12344321"; //
+#if defined(WiFi_Quanser)
+  const char* ssid     = "Quanser_UVS";
+  const char* password = "UVS_wifi";
+#endif
+
+#if defined(WiFi_FMCL)
+  const char* ssid     = "FMCL";
+  const char* password = "66955144";
+#endif
+
+#if defined(WiFi_HYJ)
+  const char* ssid     = "HYJs_iPhone";
+  const char* password = "12344321";
+#endif
+
+#if defined(WiFi_piAP)
+  const char* ssid     = "piAP";
+  const char* password = "12344321";
+#endif
 
 // Global variable to set the camera resolution.
 // Initially set to QVGA (320×240). To change the resolution later, change this variable
@@ -71,6 +93,11 @@ void setup() {
     return;
   }
   Serial.println("Camera initialized");
+
+  // flip frames vertically
+  sensor_t *sensor = esp_camera_sensor_get();
+  sensor->set_vflip(sensor, 1);
+  sensor->set_hmirror(sensor, 1);
 
   // --- Wi-Fi Connection ---
   WiFi.mode(WIFI_STA);
