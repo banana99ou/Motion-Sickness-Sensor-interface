@@ -11,13 +11,37 @@
 #include "camera_pins.h"
 
 
+#define WiFi_Quanser
+// #define WiFi_FMCL
+// #define WiFi_HYJ
+// #define WiFi_piAP
+
+
 // ──────────────────────────────────────────────────────────
 // USER SETTINGS
 // ──────────────────────────────────────────────────────────
-const char* ssid = "FMCL"; // "Quanser_UVS"; //  "HYJs_iPhone"; // "piAP"; //
-const char* password =  "66955144"; //"UVS_wifi"; //  "12344321"; // "12344321"; //
+// Wi-Fi credentials
+#if defined(WiFi_Quanser)
+  const char* ssid     = "Quanser_UVS";
+  const char* password = "UVS_wifi";
+#endif
 
-static const framesize_t CAM_RES = FRAMESIZE_QVGA;   // change later if needed
+#if defined(WiFi_FMCL)
+  const char* ssid     = "FMCL";
+  const char* password = "66955144";
+#endif
+
+#if defined(WiFi_HYJ)
+  const char* ssid     = "HYJs_iPhone";
+  const char* password = "12344321";
+#endif
+
+#if defined(WiFi_piAP)
+  const char* ssid     = "piAP";
+  const char* password = "12344321";
+#endif
+
+static const framesize_t CAM_RES = FRAMESIZE_VGA;   // change later if needed
 static const int        CAM_PORT = 8000;
 static const int        IMU_PORT = 8888;
 
@@ -70,13 +94,18 @@ void setup() {
   cfg.xclk_freq_hz = 20000000;
   cfg.pixel_format = PIXFORMAT_JPEG;
   cfg.frame_size   = CAM_RES;
-  cfg.jpeg_quality = 12;
+  cfg.jpeg_quality = 20;
   cfg.fb_count     = 2;
   cfg.grab_mode    = CAMERA_GRAB_LATEST;
 
   if (!psramFound()) { Serial.println("No PSRAM!"); while (1) {} }
   ESP_ERROR_CHECK( esp_camera_init(&cfg) );
   Serial.println("Camera ready");
+
+  // flip frames vertically
+  sensor_t *sensor = esp_camera_sensor_get();
+  sensor->set_vflip(sensor, 1);
+  sensor->set_hmirror(sensor, 1);
 
   // ── Wi‑Fi ───────────────────────────────────────────────
   WiFi.mode(WIFI_STA);
