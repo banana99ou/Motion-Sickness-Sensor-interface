@@ -1,25 +1,3 @@
-#######################################
-# Syntax Coloring Map For IAQ2000
-#######################################
-
-#######################################
-# Datatypes (KEYWORD1)
-#######################################
-IAQ2000	KEYWORD1
-
-#######################################
-# Methods and Functions (KEYWORD2)
-#######################################
-
-initialize	KEYWORD2
-testConnection	KEYWORD2
-getIaq	KEYWORD2
-
-#######################################
-# Instances (KEYWORD2)
-#######################################
-
-#######################################
-# Constants (LITERAL1)
-#######################################
-
+version https://git-lfs.github.com/spec/v1
+oid sha256:7650f8fe12cfb2b376cd0eeeadb56b84968822d796e9a4b99fe67919970befab
+size 621

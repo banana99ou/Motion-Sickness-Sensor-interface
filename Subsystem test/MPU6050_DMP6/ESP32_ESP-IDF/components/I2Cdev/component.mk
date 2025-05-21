@@ -1,10 +1,3 @@
-#
-# Main component makefile.
-#
-# This Makefile can be left empty. By default, it will take the sources in the 
-# src/ directory, compile them and link them into lib(subdirectory_name).a 
-# in the build directory. This behaviour is entirely configurable,
-# please read the ESP-IDF documents if you need to do this.
-#
-
-COMPONENT_ADD_INCLUDEDIRS=.
+version https://git-lfs.github.com/spec/v1
+oid sha256:6a1ff2375c2320c6b70a23793150b1d698a7b70b51398cf3bd123e83906502df
+size 344

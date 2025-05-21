@@ -1,6 +1,3 @@
-Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Unrestricted
-
-test 1. apr 29th 
-camerea did not died for over an hour during camera only test.
-test was conducted using camera webserver example code.
-temparature was not hot to the touch. unlike RTOS integrated code.
+version https://git-lfs.github.com/spec/v1
+oid sha256:e280fa13f6df2b92db6653d8955335b8244d23ca32a0146d3687ac55d6d89bdb
+size 278

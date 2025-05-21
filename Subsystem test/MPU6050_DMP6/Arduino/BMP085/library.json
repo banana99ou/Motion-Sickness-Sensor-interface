@@ -1,18 +1,3 @@
-{
-  "name": "I2Cdevlib-BMP085",
-  "version": "1.0.0",
-  "keywords": "altimeter, altitude, barometer, pressure, temperature, sensor, i2cdevlib, i2c",
-  "description": "The BMP085 is barometric pressure, temperature and altitude sensor",
-  "include": "Arduino/BMP085",
-  "repository":
-  {
-    "type": "git",
-    "url": "https://github.com/jrowberg/i2cdevlib.git"
-  },
-  "dependencies":
-  {
-    "jrowberg/I2Cdevlib-Core": "*"
-  },
-  "frameworks": "arduino",
-  "platforms": "*"
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:8b69e8a38e3bb93ecd6a9c908c612444fff1556aabd4b3742af1008019ed34d1
+size 476

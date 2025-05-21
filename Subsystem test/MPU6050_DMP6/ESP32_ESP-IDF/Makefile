@@ -1,9 +1,3 @@
-#
-# This is a project Makefile. It is assumed the directory this Makefile resides in is a
-# project subdirectory.
-#
-
-PROJECT_NAME := app-template
-
-include $(IDF_PATH)/make/project.mk
-
+version https://git-lfs.github.com/spec/v1
+oid sha256:499463ce17c9605294a9bf72a35204e0a8a01a51feb79f73400e673df02269cb
+size 184

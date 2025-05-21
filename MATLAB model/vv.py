@@ -1,19 +1,3 @@
-import cv2
-
-class StreamProcessor:
-    def __init__(self, source):
-        # source can be a filename, HTTP/RTSP URL, etc.
-        self.cap = cv2.VideoCapture(source)
-
-    def step(self):
-        ret, frame = self.cap.read()
-        if not ret:
-            # handle end-of-stream or reconnect
-            self.cap.release()
-            self.cap = cv2.VideoCapture(source)
-            ret, frame = self.cap.read()
-        # now do any OpenCV processing on frame
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        # return whatever you need back to Simulink
-        return gray
-
+version https://git-lfs.github.com/spec/v1
+oid sha256:21563112c809c514737483e7295ff8bec867f688f711061dd7c2100345482af4
+size 589

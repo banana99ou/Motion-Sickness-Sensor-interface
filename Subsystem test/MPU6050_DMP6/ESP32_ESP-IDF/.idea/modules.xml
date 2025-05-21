@@ -1,8 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="ProjectModuleManager">
-    <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/ESP32_ESP-IDF.iml" filepath="$PROJECT_DIR$/.idea/ESP32_ESP-IDF.iml" />
-    </modules>
-  </component>
-</project>
+version https://git-lfs.github.com/spec/v1
+oid sha256:21b02674bb10ec70120c072295043ccdd73658b11759c535eb390259f1611686
+size 278

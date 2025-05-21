@@ -1,1 +1,3 @@
-https://cad.onshape.com/documents/ac5f124c6cd79ea6c57ea371/w/a2d1741745a5d7f9caf0d89e/e/78d9505ddf5d370b84c3d779?renderMode=0&uiState=67bc5243e5e5605ea490f81d
+version https://git-lfs.github.com/spec/v1
+oid sha256:db914ad656242a7498819810af27a2b406fb88f6dc55a8724b7d462410c1833d
+size 158
