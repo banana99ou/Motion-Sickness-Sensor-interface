@@ -6,15 +6,19 @@ import numpy as np
 import pandas as pd
 import os
 import cv2
+from tqdm import tqdm
 
 # 1) Load IMU CSV and show t_rel
-imu_csv = glob.glob("recording_20250508_173409/imu_data_*.csv")[0]
+# imu_csv = glob.glob("recording_20250508_173409/imu_data_*.csv")[0]
+path = "Experiment Data/Test 7 - 0520-1542/recording_20250520_154216"
+imu_csv = glob.glob(f"{path}/imu_data_*.csv")[0]
 imu_df = pd.read_csv(imu_csv, sep=",")
 print("=== IMU t_rel (s) ===")
 print(imu_df["t_rel"].head().to_list(), "...", imu_df["t_rel"].tail().to_list())
 
 # 2) Load frames and parse timestamps
-frame_files = sorted(glob.glob("recording_20250508_173455/frames/*.jpg"))
+# frame_files = sorted(glob.glob("recording_20250508_173455/frames/*.jpg"))
+frame_files = sorted(glob.glob(f"{path}/frames/*.jpg"))
 
 def parse_frame_ts(fname):
     m = re.match(r".*_(\d{8}_\d{6})_(\d{6})\.jpg", fname)
@@ -56,7 +60,7 @@ for ch in imu_channels:
 imu_out = pd.DataFrame(imu_resampled)
 
 # save
-out_csv = "imu_resampled.csv"
+out_csv = f"{path}_imu_resampled.csv"
 imu_out.to_csv(out_csv, index=False)
 print(f"\nSaved {len(imu_out)} rows of resampled IMU data to {out_csv}")
 
@@ -68,16 +72,17 @@ h, w      = first_img.shape[:2]
 
 # set up writer (MP4, 30 FPS)
 fourcc    = cv2.VideoWriter_fourcc(*'mp4v')
-out_video = 'output.mp4'
+out_video = f"{path}_output.mp4"
 writer    = cv2.VideoWriter(out_video, fourcc, 30.0, (w, h))
 
 # loop through every target timestamp
-for t in video_times:
-    idx   = np.abs(frame_raw - t).argmin()
-    img   = cv2.imread(frame_files[idx])
+for t in tqdm(video_times, desc="Writing frames", unit="frame"):
+    idx = np.abs(frame_raw - t).argmin()
+    img = cv2.imread(frame_files[idx])
     if img is None:
         raise RuntimeError(f"Failed to load {frame_files[idx]}")
     writer.write(img)
+
 
 writer.release()
 print(f"\nSaved 30 FPS video to {out_video}")
