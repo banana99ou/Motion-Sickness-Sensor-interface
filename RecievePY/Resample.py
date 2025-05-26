@@ -8,9 +8,12 @@ import os
 import cv2
 from tqdm import tqdm
 
+fps = 100
+Target_Hz = 100
+
 # 1) Load IMU CSV and show t_rel
 # imu_csv = glob.glob("recording_20250508_173409/imu_data_*.csv")[0]
-path = "Experiment Data/Test 7 - 0520-1542/recording_20250520_154216"
+path = "Experiment Data/Test 3 */recording_*"
 imu_csv = glob.glob(f"{path}/imu_data_*.csv")[0]
 imu_df = pd.read_csv(imu_csv, sep=",")
 print("=== IMU t_rel (s) ===")
@@ -37,8 +40,8 @@ print(f"\nDuration → IMU: {duration_imu:.3f}s, Frames: {duration_frame:.3f}s")
 
 # 4) Generate uniform grids up to the shorter duration (frames)
 t_end     = frame_raw.max()      # ≈1819.645 s
-video_dt  = 1.0 / 30.0           # 30 Hz → one timestamp every ~0.0333 s
-imu_dt    = 1.0 / 300.0          # 300 Hz → one timestamp every ~0.00333 s
+video_dt  = 1.0 / fps           # 30 Hz → one timestamp every ~0.0333 s
+imu_dt    = 1.0 / Target_Hz          # 300 Hz → one timestamp every ~0.00333 s
 
 video_times = np.arange(0.0, t_end, video_dt)
 imu_times   = np.arange(0.0, t_end, imu_dt)
