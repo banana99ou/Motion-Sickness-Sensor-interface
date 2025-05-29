@@ -1,8 +1,8 @@
 Experiment[[:space:]]Data/*.csv filter=lfs diff=lfs merge=lfs -text
 Experiment[[:space:]]Data/**/*.csv filter=lfs diff=lfs merge=lfs -text
 Experiment[[:space:]]Data/**/*.mp4 filter=lfs diff=lfs merge=lfs -text
-*.mp4 filter=lfs diff=lfs merge=lfs -text
-recording_*_*/*.csv filter=lfs diff=lfs merge=lfs -text
+./*.mp4 filter=lfs diff=lfs merge=lfs -text
+./recording_*_*/*.csv filter=lfs diff=lfs merge=lfs -text
 *.gitignore filter=lfs diff=lfs merge=lfs -text
 *.txt filter=lfs diff=lfs merge=lfs -text
 *.png filter=lfs diff=lfs merge=lfs -text
@@ -12,6 +12,7 @@ recording_*_*/*.csv filter=lfs diff=lfs merge=lfs -text
 *.csv filter=lfs diff=lfs merge=lfs -text
 *.h filter=lfs diff=lfs merge=lfs -text
 *.m filter=lfs diff=lfs merge=lfs -text
+*.mp4 filter=lfs diff=lfs merge=lfs -text
 *.slx filter=lfs diff=lfs merge=lfs -text
 *.r2023b filter=lfs diff=lfs merge=lfs -text
 *.webp filter=lfs diff=lfs merge=lfs -text
