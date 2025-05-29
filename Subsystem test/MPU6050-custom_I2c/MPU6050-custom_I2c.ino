@@ -20,7 +20,7 @@ void setup() {
 
   // Initialize I2C using SDA = 15, SCL = 14
   // The third parameter is the I2C frequency (100kHz here).
-  Wire.begin(15, 14, 100000);
+  Wire.begin(15, 16, 100000);
 
   // Initialize MPU6050
   analogWrite(LED_BUILTIN, 10);
