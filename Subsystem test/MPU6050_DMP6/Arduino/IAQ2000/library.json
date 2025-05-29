@@ -1,3 +1,18 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:6227e433e9307abcc3fc794d386f58b045f81408b7566a8266a92cde8d9536a4
-size 482
+{
+  "name": "I2Cdevlib-IAQ2000",
+  "version": "1.0.0",
+  "keywords": "co2, carbon, dioxide, sensor, i2cdevlib, i2c",
+  "description": "The iAQ-2000 Indoor Air Quality Module is a sensitive, low-cost solution for detecting poor air quality",
+  "include": "Arduino/IAQ2000",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/jrowberg/i2cdevlib.git"
+  },
+  "dependencies":
+  {
+    "jrowberg/I2Cdevlib-Core": "*"
+  },
+  "frameworks": "arduino",
+  "platforms": "*"
+}

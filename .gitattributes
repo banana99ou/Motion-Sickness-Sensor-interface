@@ -1,7 +1,6 @@
-Experiment[[:space:]]Data/*.csv filter=lfs diff=lfs merge=lfs -text
+Experiment[[:space:]]Data/*/*.csv filter=lfs diff=lfs merge=lfs -text
 Experiment[[:space:]]Data/**/*.csv filter=lfs diff=lfs merge=lfs -text
+Experiment[[:space:]]Data/*/*.mp4 filter=lfs diff=lfs merge=lfs -text
 Experiment[[:space:]]Data/**/*.mp4 filter=lfs diff=lfs merge=lfs -text
 ./*.mp4 filter=lfs diff=lfs merge=lfs -text
-./recording_*_*/*.csv filter=lfs diff=lfs merge=lfs -text
-*.csv filter=lfs diff=lfs merge=lfs -text
-*.mp4 filter=lfs diff=lfs merge=lfs -text
+./*/*.csv filter=lfs diff=lfs merge=lfs -text

@@ -1,3 +1,2 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:5fa6c3e38cbcb7f984790dae17786fd78d3d495b09d0331bbd084d0802ab1c1d
-size 133
+Camera Time To Death
+1. 04:04.25 -> after cool down, it shows sign of damage . i.e. horizontal line artifact, small patch of burn-in 

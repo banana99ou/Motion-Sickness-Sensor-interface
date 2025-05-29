@@ -1,3 +1,12 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:5306e7ea9944bf9135e11f5b52f23cce967d388096670667c91335e3f626a67b
-size 141
+*.code-workspace
+*.autosave
+Simulink/slprj
+MATLAB model/slprj
+.venv
+.stignore
+MSI
+.DS_Store
+imu_data_*.csv
+video_*.avi
+recording_*
+output.mp4

@@ -1,3 +1,6 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:233adf8222c03d218501b8e33a9e34f4faf34b89d3cf29019f45d2b54e9025bd
-size 285
+I2CDev library rewritted to match esp-idf. DMP should work, only need is to setup 
+    mpu.setXGyroOffset(220);
+    mpu.setYGyroOffset(76);
+    mpu.setZGyroOffset(-85);
+    mpu.setZAccelOffset(1788);
+and eventually change last value in components/MPU6050/MPU6050_6Axis_MotionApps20.h.

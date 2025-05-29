@@ -1,3 +1,18 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:98d8917528f2079b901bd2fb637f9657cdc930cd8046372857be7e2d7053a041
-size 477
+{
+  "name": "I2Cdevlib-BMA150",
+  "version": "1.0.0",
+  "keywords": "accelerometer, sensor, i2cdevlib, i2c",
+  "description": "The BMA150 is a triaxial, low-g acceleration sensor IC with digital output for consumer market applications",
+  "include": "Arduino/BMA150",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/jrowberg/i2cdevlib.git"
+  },
+  "dependencies":
+  {
+    "jrowberg/I2Cdevlib-Core": "*"
+  },
+  "frameworks": "arduino",
+  "platforms": "*"
+}

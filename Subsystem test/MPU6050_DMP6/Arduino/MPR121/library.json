@@ -1,3 +1,18 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:7afd9353630c8f4a87484d9485ccc5c6b890e51fb0dbf044dc0611cd0c6e0ae7
-size 442
+{
+  "name": "I2Cdevlib-MPR121",
+  "version": "1.0.0",
+  "keywords": "touch, capacitance, proximity, sensor, i2cdevlib, i2c",
+  "description": "The MPR121 is a 12-bit proximity capacitive touch sensor",
+  "include": "Arduino/MPR121",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/jrowberg/i2cdevlib.git"
+  },
+  "dependencies":
+  {
+    "jrowberg/I2Cdevlib-Core": "*"
+  },
+  "frameworks": "arduino",
+  "platforms": "*"
+}

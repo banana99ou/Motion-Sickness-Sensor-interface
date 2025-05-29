@@ -1,3 +1,18 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:39b2872a58b6b5dbeec527b15b34a8e6dee45f8ae6cddd2133bbe75b03c2c546
-size 535
+{
+  "name": "I2Cdevlib-MPU9150",
+  "version": "1.0.0",
+  "keywords": "gyroscope, accelerometer, compass, sensor, i2cdevlib, i2c",
+  "description": "The MPU-9150 combines two chips: the MPU-6050, which contains a 3-axis gyroscope, 3-axis accelerometer and the AK8975, a 3-axis digital compass",
+  "include": "Arduino/MPU9150",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/jrowberg/i2cdevlib.git"
+  },
+  "dependencies":
+  {
+    "jrowberg/I2Cdevlib-Core": "*"
+  },
+  "frameworks": "arduino",
+  "platforms": "*"
+}
