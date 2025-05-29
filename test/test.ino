@@ -1,8 +1,3 @@
-/********************************************************************
- *  ESP32‑CAM  (AI‑Thinker)  —  MJPEG + MPU‑6050 streaming demo
- *  Optimised: decoupled producer / consumer, core‑pinning, precise
- *  timing, and 400 kHz I²C.
- *******************************************************************/
 #include "esp_camera.h"
 #include <WiFi.h>
 #include <Wire.h>
@@ -16,10 +11,6 @@
 // #define WiFi_HYJ
 // #define WiFi_piAP
 
-
-// ──────────────────────────────────────────────────────────
-// USER SETTINGS
-// ──────────────────────────────────────────────────────────
 // Wi-Fi credentials
 #if defined(WiFi_Quanser)
   const char* ssid     = "Quanser_UVS";
@@ -41,7 +32,7 @@
   const char* password = "12344321";
 #endif
 
-static const framesize_t CAM_RES = FRAMESIZE_VGA;   // change later if needed
+static const framesize_t CAM_RES = FRAMESIZE_VGA;   // camera resolution
 static const int        CAM_PORT = 8000;
 static const int        IMU_PORT = 8888;
 
@@ -94,9 +85,9 @@ void setup() {
   cfg.xclk_freq_hz = 20000000;
   cfg.pixel_format = PIXFORMAT_JPEG;
   cfg.frame_size   = CAM_RES;
-  cfg.jpeg_quality = 20;
+  cfg.jpeg_quality = 20;                  //! image quality lower the better -> !!validate!!
   cfg.fb_count     = 2;
-  cfg.grab_mode    = CAMERA_GRAB_LATEST;
+  cfg.grab_mode    = CAMERA_GRAB_LATEST;  //! what does this do?
 
   if (!psramFound()) { Serial.println("No PSRAM!"); while (1) {} }
   ESP_ERROR_CHECK( esp_camera_init(&cfg) );
