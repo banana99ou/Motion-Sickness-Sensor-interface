@@ -4,6 +4,7 @@ Experiment[[:space:]]Data/*/*.mp4 filter=lfs diff=lfs merge=lfs -text
 Experiment[[:space:]]Data/**/*.mp4 filter=lfs diff=lfs merge=lfs -text
 ./*.mp4 filter=lfs diff=lfs merge=lfs -text
 ./*/*.csv filter=lfs diff=lfs merge=lfs -text
+*.jpg filter=lfs diff=lfs merge=lfs -text
 * !text !filter !merge !diff
 Experiment[[:space:]]Data/** filter=lfs diff=lfs merge=lfs -text
 *.mp4 filter=lfs diff=lfs merge=lfs -text
