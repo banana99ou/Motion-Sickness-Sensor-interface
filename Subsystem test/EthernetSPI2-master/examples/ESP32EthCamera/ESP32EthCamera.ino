@@ -147,22 +147,22 @@ void setup() {
   if (Ethernet.hardwareStatus() == EthernetNoHardware) {
     Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
     while (true) {
-      delay(200);
-      digitalWrite(LED, HIGH);
-      digitalWrite(FLED, HIGH);
-      delay(200);
-      digitalWrite(LED, LOW);
-      digitalWrite(FLED, LOW);
+    //   delay(200);
+    //   digitalWrite(LED, HIGH);
+    //   digitalWrite(FLED, HIGH);
+    //   delay(200);
+    //   digitalWrite(LED, LOW);
+    //   digitalWrite(FLED, LOW);
     }
   }
   while (Ethernet.linkStatus() == LinkOFF) {
     Serial.println("Ethernet cable is NOT connected.");
-      delay(500);
-      digitalWrite(LED, HIGH);
-      digitalWrite(FLED, HIGH);
-      delay(500);
-      digitalWrite(LED, LOW);
-      digitalWrite(FLED, LOW);    
+      // delay(500);
+      // digitalWrite(LED, HIGH);
+      // digitalWrite(FLED, HIGH);
+      // delay(500);
+      // digitalWrite(LED, LOW);
+      // digitalWrite(FLED, LOW);    
   }
 
   Serial.println("Ethernet cable is now connected.");
