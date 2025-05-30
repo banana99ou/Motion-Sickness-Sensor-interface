@@ -66,6 +66,8 @@ static const char* _STREAM_PART_TMPL = "Content-Type: image/jpeg\r\n" "X-Timesta
 #define LED 33
 #define FLED 4
 
+static const framesize_t CAM_RES = FRAMESIZE_QVGA;   // camera resolution
+
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network:
 byte mac[] = {
@@ -77,7 +79,7 @@ IPAddress ip(192, 168, 89, 11);
 // Initialize the Ethernet server library
 // with the IP address and port you want to use
 // (port 80 is default for HTTP):
-EthernetServer server(80);
+EthernetServer server(8000);
 
 void setup() {
   pinMode(LED, OUTPUT);
@@ -87,40 +89,40 @@ void setup() {
   Serial.begin(115200);
 
   // configure camera
-  camera_config_t config;
-  config.ledc_channel = LEDC_CHANNEL_0;
-  config.ledc_timer = LEDC_TIMER_0;
-  config.pin_d0 = Y2_GPIO_NUM;
-  config.pin_d1 = Y3_GPIO_NUM;
-  config.pin_d2 = Y4_GPIO_NUM;
-  config.pin_d3 = Y5_GPIO_NUM;
-  config.pin_d4 = Y6_GPIO_NUM;
-  config.pin_d5 = Y7_GPIO_NUM;
-  config.pin_d6 = Y8_GPIO_NUM;
-  config.pin_d7 = Y9_GPIO_NUM;
-  config.pin_xclk = XCLK_GPIO_NUM;
-  config.pin_pclk = PCLK_GPIO_NUM;
-  config.pin_vsync = VSYNC_GPIO_NUM;
-  config.pin_href = HREF_GPIO_NUM;
-  config.pin_sscb_sda = SIOD_GPIO_NUM;
-  config.pin_sscb_scl = SIOC_GPIO_NUM;
-  config.pin_pwdn = PWDN_GPIO_NUM;
-  config.pin_reset = RESET_GPIO_NUM;
-  config.xclk_freq_hz = 20000000;
-  config.pixel_format = PIXFORMAT_JPEG;
+  camera_config_t cfg = {};
+  cfg.ledc_channel = LEDC_CHANNEL_0;
+  cfg.ledc_timer   = LEDC_TIMER_0;
+  cfg.pin_d0 = Y2_GPIO_NUM;  cfg.pin_d1 = Y3_GPIO_NUM;
+  cfg.pin_d2 = Y4_GPIO_NUM;  cfg.pin_d3 = Y5_GPIO_NUM;
+  cfg.pin_d4 = Y6_GPIO_NUM;  cfg.pin_d5 = Y7_GPIO_NUM;
+  cfg.pin_d6 = Y8_GPIO_NUM;  cfg.pin_d7 = Y9_GPIO_NUM;
+  cfg.pin_xclk = XCLK_GPIO_NUM;
+  cfg.pin_pclk = PCLK_GPIO_NUM;
+  cfg.pin_vsync = VSYNC_GPIO_NUM;
+  cfg.pin_href  = HREF_GPIO_NUM;
+  cfg.pin_sccb_sda = SIOD_GPIO_NUM;
+  cfg.pin_sccb_scl = SIOC_GPIO_NUM;
+  cfg.pin_pwdn  = PWDN_GPIO_NUM;
+  cfg.pin_reset = RESET_GPIO_NUM;
+  cfg.xclk_freq_hz = 20000000;
+  cfg.pixel_format = PIXFORMAT_JPEG;
+  cfg.frame_size   = CAM_RES;
+  cfg.jpeg_quality = 20;                  // image quality lower the better
+  cfg.fb_count     = 2;
+  cfg.grab_mode    = CAMERA_GRAB_LATEST;  //! what does this do?
   //init with high specs to pre-allocate larger buffers
   if(psramFound()){
-    config.frame_size = FRAMESIZE_UXGA;
-    config.jpeg_quality = 10;
-    config.fb_count = 2;
+    cfg.frame_size = FRAMESIZE_UXGA;
+    cfg.jpeg_quality = 10;
+    cfg.fb_count = 2;
   } else {
-    config.frame_size = FRAMESIZE_SVGA;
-    config.jpeg_quality = 12;
-    config.fb_count = 1;
+    cfg.frame_size = FRAMESIZE_SVGA;
+    cfg.jpeg_quality = 12;
+    cfg.fb_count = 1;
   }
 
   // camera init
-  esp_err_t err = esp_camera_init(&config);
+  esp_err_t err = esp_camera_init(&cfg);
   if (err != ESP_OK) {
     Serial.printf("Camera init failed with error 0x%x", err);
     return;
@@ -134,8 +136,7 @@ void setup() {
     s->set_saturation(s, -2);//lower the saturation
   }
   //drop down frame size for higher initial frame rate
-  //s->set_framesize(s, FRAMESIZE_QVGA);
-  s->set_framesize(s, FRAMESIZE_HVGA);
+  s->set_framesize(s, CAM_RES);
 
   Ethernet.init(2);
   //Ethernet.begin(mac, ip); // start the Ethernet connection and the server:
