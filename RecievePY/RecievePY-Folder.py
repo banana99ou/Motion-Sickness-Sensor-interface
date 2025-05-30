@@ -83,30 +83,54 @@ def camera_and_display_thread():
     overlays FPS, displays the image with a live IMU graph beneath,
     and saves each frame as an individual JPEG with a timestamp in its filename.
     """
+    boundary = b"--123456789000000000000987654321"
     stream_url = f"http://{ESP32_IP}:8000/stream"
-    cap = cv2.VideoCapture(stream_url)
-    if not cap.isOpened():
-        print(f"[Camera] Error: Unable to open camera stream at {stream_url}")
+
+    print(f"[Camera] Connecting to {stream_url}")
+    r = requests.get(stream_url, stream=True, timeout=10)
+    if r.status_code != 200:
+        print("[Camera] Couldn't open MJPEG stream")
         return
 
-    # Attempt to grab one frame to get dimensions.
-    ret, frame = cap.read()
-    if not ret:
-        print("[Camera] Error: Couldn't read frame for dimensions.")
-        cap.release()
-        return
-    frame_height, frame_width = frame.shape[:2]
-    
-    frame_count = 0
-    fps = 0.0
+    buf = b""
+    frame_count, fps = 0, 0.0
     start_time = time.time()
     
-    while True:
-        if stop_event.is_set():
+    while not stop_event.is_set():
+        # accumulate raw bytes
+        try:
+            buf += next(r.iter_content(chunk_size=4096))
+        except StopIteration:
             break
 
-        ret, frame = cap.read()
-        if not ret:
+        # look for one complete MJPEG part
+        b_start = buf.find(boundary)
+        if b_start == -1:
+            continue
+        hdr_end = buf.find(b"\r\n\r\n", b_start)
+        if hdr_end == -1:
+            continue
+        b_next = buf.find(boundary, hdr_end + 4)
+        if b_next == -1:
+            continue
+
+        header = buf[b_start + len(boundary):hdr_end].decode()
+        jpeg   = buf[hdr_end + 4:b_next]
+        buf    = buf[b_next:]                 # drop processed bytes
+
+        # extract micro-second timestamp we added in C++
+        t_us = None
+        for ln in header.split("\r\n"):
+            if ln.lower().startswith("x-timestamp-us:"):
+                t_us = int(ln.split(":")[1].strip())
+                break
+        if t_us is None:
+            continue                         # malformed part
+
+        # JPEG → numpy BGR image
+        frame = cv2.imdecode(np.frombuffer(jpeg, np.uint8),
+                             cv2.IMREAD_COLOR)
+        if frame is None:
             continue
 
         # Save each frame as a JPEG image if recording is enabled.
