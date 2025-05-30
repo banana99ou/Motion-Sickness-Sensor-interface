@@ -42,6 +42,7 @@
 static const char* _STREAM_CONTENT_TYPE = "multipart/x-mixed-replace;boundary=" PART_BOUNDARY;
 static const char* _STREAM_BOUNDARY = "\r\n--" PART_BOUNDARY "\r\n";
 static const char* _STREAM_PART = "Content-Type: image/jpeg\r\nContent-Length: %u\r\n\r\n";
+static const char* _STREAM_PART_TMPL = "Content-Type: image/jpeg\r\n" "X-Timestamp-US: %llu\r\n" "Content-Length: %u\r\n\r\n";
 
 //CAMERA PINS
 #define PWDN_GPIO_NUM     32
@@ -134,10 +135,7 @@ void setup() {
   }
   //drop down frame size for higher initial frame rate
   //s->set_framesize(s, FRAMESIZE_QVGA);
-  s->set_framesize(s, FRAMESIZE_SVGA);
-
-
-
+  s->set_framesize(s, FRAMESIZE_HVGA);
 
   Ethernet.init(2);
   //Ethernet.begin(mac, ip); // start the Ethernet connection and the server:
@@ -173,79 +171,78 @@ void setup() {
   Serial.println(Ethernet.localIP());
 }
 
-
 void stream_h(EthernetClient *ec){
-    camera_fb_t * fb = NULL;
-    size_t _jpg_buf_len = 0;
-    uint8_t * _jpg_buf = NULL;
-    char * part_buf[64];
-    boolean error_sending = false;
-    int bytes_sent;
-    int jpg_od, jpg_jos;
+  camera_fb_t * fb = NULL;
+  size_t _jpg_buf_len = 0;
+  uint8_t * _jpg_buf = NULL;
+  static char part_buf[128];
+  boolean error_sending = false;
+  int bytes_sent;
+  int jpg_od, jpg_jos;
 
-    ec->println("HTTP/1.1 200 OK");
-    ec->print("Content-Type: ");
-    ec->println(_STREAM_CONTENT_TYPE);
-    ec->println("Access-Control-Allow-Origin: *");
-    ec->println();
+  ec->println("HTTP/1.1 200 OK");
+  ec->print("Content-Type: ");
+  ec->println(_STREAM_CONTENT_TYPE);
+  ec->println("Access-Control-Allow-Origin: *");
+  ec->println();
 
-    while(true){
-       error_sending = false;
-       fb = esp_camera_fb_get();
-       if (!fb) {
-           Serial.println("Camera capture failed");
-           return;
-       }
-
-       if(fb->format != PIXFORMAT_JPEG){ // if not already jpg in framebuffer, convert to jpg
-         bool jpeg_converted = frame2jpg(fb, 80, &_jpg_buf, &_jpg_buf_len);
-         esp_camera_fb_return(fb);
-         fb = NULL;
-         if(!jpeg_converted){
-           Serial.println("JPEG compression failed");
-           return;
-         }
-       } else {
-         _jpg_buf_len = fb->len;
-         _jpg_buf = fb->buf;
-       }
-
-       size_t hlen = snprintf((char *)part_buf, 64, _STREAM_PART, _jpg_buf_len);
-       bytes_sent = ec->write((const char *)part_buf, hlen);
-       if (bytes_sent != hlen) error_sending = true;
-
-       // Send JPG data in 2kb chunks
-       jpg_od  = 0;
-       jpg_jos = _jpg_buf_len;
-       while (jpg_jos > 0){
-         if (jpg_jos > 2048) {
-           bytes_sent = ec->write( (const char *)&_jpg_buf[jpg_od] , 2048);
-           jpg_jos -= 2048;
-           jpg_od += 2048;
-         } else {
-           bytes_sent = ec->write( (const char *)&_jpg_buf[jpg_od] , jpg_jos);
-           jpg_jos = 0;
-           jpg_od = 0;
-         }
-       }
-
-       bytes_sent = ec->write(_STREAM_BOUNDARY, strlen(_STREAM_BOUNDARY));
-       if (bytes_sent != strlen(_STREAM_BOUNDARY)) error_sending = true;
-
-       // release buffers
-       if(fb){
-         esp_camera_fb_return(fb);
-         fb = NULL;
-         _jpg_buf = NULL;
-        } else if(_jpg_buf){
-          free(_jpg_buf);
-          _jpg_buf = NULL;
-        }
-
-       if (error_sending) break; // if client disconnected do not send any more JPG's
+  while(true){
+    error_sending = false;
+    fb = esp_camera_fb_get();
+    if (!fb) {
+        Serial.println("Camera capture failed");
+        return;
     }
-}
 
+    if(fb->format != PIXFORMAT_JPEG){ // if not already jpg in framebuffer, convert to jpg
+      bool jpeg_converted = frame2jpg(fb, 80, &_jpg_buf, &_jpg_buf_len);
+      esp_camera_fb_return(fb);
+      fb = NULL;
+      if(!jpeg_converted){
+        Serial.println("JPEG compression failed");
+        return;
+      }
+    } else {
+      _jpg_buf_len = fb->len;
+      _jpg_buf = fb->buf;
+    }
+
+    uint64_t t_us = esp_timer_get_time();                    // µs since boot
+    size_t hlen = snprintf(part_buf, sizeof(part_buf), _STREAM_PART_TMPL, (unsigned long long)t_us, _jpg_buf_len);
+    bytes_sent = ec->write((const char *)part_buf, hlen);
+    if (bytes_sent != hlen) error_sending = true;
+
+    // Send JPG data in 2kb chunks
+    jpg_od  = 0;
+    jpg_jos = _jpg_buf_len;
+    while (jpg_jos > 0){
+      if (jpg_jos > 2048) {
+        bytes_sent = ec->write( (const char *)&_jpg_buf[jpg_od] , 2048);
+        jpg_jos -= 2048;
+        jpg_od += 2048;
+      } else {
+        bytes_sent = ec->write( (const char *)&_jpg_buf[jpg_od] , jpg_jos);
+        jpg_jos = 0;
+        jpg_od = 0;
+      }
+    }
+
+    bytes_sent = ec->write(_STREAM_BOUNDARY, strlen(_STREAM_BOUNDARY));
+    if (bytes_sent != strlen(_STREAM_BOUNDARY)) error_sending = true;
+
+    // release buffers
+    if(fb){
+      esp_camera_fb_return(fb);
+      fb = NULL;
+      _jpg_buf = NULL;
+    } else if(_jpg_buf){
+      free(_jpg_buf);
+      _jpg_buf = NULL;
+    }
+
+    if (error_sending) break; // if client disconnected do not send any more JPG's
+  }
+}
 
 void loop() {
   boolean biocr;
