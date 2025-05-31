@@ -5,6 +5,7 @@
 #define CAMERA_MODEL_AI_THINKER // Has PSRAM
 #include "camera_pins.h"
 
+#define FLED 4
 
 #define WiFi_Quanser
 // #define WiFi_FMCL
@@ -36,6 +37,8 @@ static const framesize_t CAM_RES = FRAMESIZE_VGA;   // camera resolution
 static const int        CAM_PORT = 8000;
 static const int        IMU_PORT = 8888;
 
+FLED_Intensity = 150; // Flash Brightness
+
 // ──────────────────────────────────────────────────────────
 // GLOBALS & QUEUES
 // ──────────────────────────────────────────────────────────
@@ -64,6 +67,11 @@ void imuNetTask(void*);
 void setup() {
   Serial.begin(115200);
   Serial.setDebugOutput(true);
+
+  // Turn on Flash
+  pinMode(FLED, OUTPUT);
+  analogWrite(FLED, FLED_Intensity);
+
   delay(400);
 
   // ── Camera init ────────────────────────────────────────
@@ -85,9 +93,9 @@ void setup() {
   cfg.xclk_freq_hz = 20000000;
   cfg.pixel_format = PIXFORMAT_JPEG;
   cfg.frame_size   = CAM_RES;
-  cfg.jpeg_quality = 20;                  //! image quality lower the better -> !!validate!!
+  cfg.jpeg_quality = 20;                  // image quality lower the better
   cfg.fb_count     = 2;
-  cfg.grab_mode    = CAMERA_GRAB_LATEST;  //! what does this do?
+  cfg.grab_mode    = CAMERA_GRAB_LATEST;  // what does this do?
 
   if (!psramFound()) { Serial.println("No PSRAM!"); while (1) {} }
   ESP_ERROR_CHECK( esp_camera_init(&cfg) );
