@@ -19,7 +19,7 @@ IPAddress ip(192, 168, 89, 11);
 // Initialize the Ethernet server library
 // with the IP address and port you want to use
 // (port 80 is default for HTTP):
-EthernetServer server(80);
+EthernetServer server(8000);
 // ----------------- MPU6050 Settings -----------------
 MPU6050 mpu(Wire);
 
@@ -35,22 +35,22 @@ void setup() {
   if (Ethernet.hardwareStatus() == EthernetNoHardware) {
     Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
     while (true) {
-      delay(200);
-      digitalWrite(LED, HIGH);
-      digitalWrite(FLED, HIGH);
-      delay(200);
-      digitalWrite(LED, LOW);
-      digitalWrite(FLED, LOW);
+      // delay(200);
+      // digitalWrite(LED, HIGH);
+      // digitalWrite(FLED, HIGH);
+      // delay(200);
+      // digitalWrite(LED, LOW);
+      // digitalWrite(FLED, LOW);
     }
   }
   while (Ethernet.linkStatus() == LinkOFF) {
     Serial.println("Ethernet cable is NOT connected.");
-      delay(500);
-      digitalWrite(LED, HIGH);
-      digitalWrite(FLED, HIGH);
-      delay(500);
-      digitalWrite(LED, LOW);
-      digitalWrite(FLED, LOW);    
+      // delay(500);
+      // digitalWrite(LED, HIGH);
+      // digitalWrite(FLED, HIGH);
+      // delay(500);
+      // digitalWrite(LED, LOW);
+      // digitalWrite(FLED, LOW);    
   }
 
   Serial.println("Ethernet cable is now connected.");
