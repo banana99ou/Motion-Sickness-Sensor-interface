@@ -10,8 +10,9 @@
 2. RecievePY  
    Python code that Recieve both sensor data. and saves it  
    * Recieve both sensor data
-   * Save as .csv and .avi (or .jpg)
-   * Send to Image processing code.
+   [ ] Resampling while Recieving
+   [ ] sending to Simulink while saving
+   * Save as .csv and .avi or .jpg(-folder)
 3. MATLAB model  
    Matlab file of SVC model (outdated)  
    - [ ] fix G block to use orientation data
