@@ -66,6 +66,9 @@ static const char* _STREAM_PART_TMPL = "Content-Type: image/jpeg\r\n" "X-Timesta
 #define LED 33
 #define FLED 4
 
+int Intensity = 0;
+int Prev_Intensity = 0;
+
 static const framesize_t CAM_RES = FRAMESIZE_QVGA;   // camera resolution
 
 // Enter a MAC address and IP address for your controller below.
@@ -84,6 +87,7 @@ EthernetServer server(8000);
 void setup() {
   pinMode(LED, OUTPUT);
   pinMode(FLED, OUTPUT);
+  pinMode(15, INPUT); // Pot input
   
   // Open serial communications and wait for port to open:
   Serial.begin(115200);
@@ -246,6 +250,14 @@ void stream_h(EthernetClient *ec){
 }
 
 void loop() {
+  // Turn on Flash
+  Intensity = map(analogRead(15), 0, 4085, 255, 0);
+  if(Prev_Intensity != Intensity){
+    analogWrite(FLED, Intensity);
+    Serial.println(Intensity);
+    Prev_Intensity = Intensity;
+  }
+
   boolean biocr;
   boolean biolf;
   boolean doubleblank;

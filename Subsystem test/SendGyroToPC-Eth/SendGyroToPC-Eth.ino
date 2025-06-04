@@ -1,106 +1,86 @@
+/*********************************************************************
+ *  ESP32-CAM + W5500  ▸  MPU-6050 JSON streamer (no Wi-Fi / camera) *
+ *********************************************************************/
 #include <SPI.h>
 #include <EthernetSPI2.h>
 #include <Wire.h>
 #include <MPU6050_tockn.h>
 
-//LEDS
-#define LED 33
-#define FLED 4
-
-// ----------------- Network Settings -----------------
-// Enter a MAC address and IP address for your controller below.
-// The IP address will be dependent on your local network:
-byte mac[] = {
-0x02, 0xAB, 0xCD, 0xEF, 0x00, 0x01
-};
-//IPAddress ip(192, 168, 89, 11);
-IPAddress ip(192, 168, 89, 11);
-
-// Initialize the Ethernet server library
-// with the IP address and port you want to use
-// (port 80 is default for HTTP):
-EthernetServer server(8000);
-// ----------------- MPU6050 Settings -----------------
+// ───── I²C (MPU-6050) ───────────────────────────────────────────────
+#define I2C_SDA   15
+#define I2C_SCL   16
 MPU6050 mpu(Wire);
 
-void setup() {
-  // Serial for debug
+// ───── Ethernet / W5500 ─────────────────────────────────────────────
+byte mac[]      = { 0xAE, 0x4B, 0x92, 0xE1, 0x35, 0x7C };
+IPAddress ip    =  IPAddress(192, 168, 89, 11);     // adjust to your LAN
+const uint16_t  IMU_PORT = 8888;
+EthernetServer  server(IMU_PORT);
+
+// ───── Timing ──────────────────────────────────────────────────────
+const uint32_t  PERIOD_US = 10'000;   // 100 Hz
+uint32_t        lastSend  = 0;
+
+void setup()
+{
   Serial.begin(115200);
 
-  Ethernet.init(2);
-  //Ethernet.begin(mac, ip); // start the Ethernet connection and the server:
-  Ethernet.begin(mac); 
-
-  // Check for Ethernet hardware present
-  if (Ethernet.hardwareStatus() == EthernetNoHardware) {
-    Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
-    while (true) {
-      // delay(200);
-      // digitalWrite(LED, HIGH);
-      // digitalWrite(FLED, HIGH);
-      // delay(200);
-      // digitalWrite(LED, LOW);
-      // digitalWrite(FLED, LOW);
-    }
-  }
-  while (Ethernet.linkStatus() == LinkOFF) {
-    Serial.println("Ethernet cable is NOT connected.");
-      // delay(500);
-      // digitalWrite(LED, HIGH);
-      // digitalWrite(FLED, HIGH);
-      // delay(500);
-      // digitalWrite(LED, LOW);
-      // digitalWrite(FLED, LOW);    
-  }
-
-  Serial.println("Ethernet cable is now connected.");
-  
-  server.begin();
-  delay(500);
-  Serial.print("server is at ");
-  Serial.println(Ethernet.localIP());
-
-  // ------ I2C for MPU6050 ------
-  // SDA = GPIO15, SCL = GPIO16, 100 kHz
-  Wire.begin(15, 16, 100000);
+  // ── IMU ──────────────────────────────────────────────────────────
+  Wire.begin(I2C_SDA, I2C_SCL, 400000);           // 400 kHz fast-mode
   mpu.begin();
-  mpu.calcGyroOffsets(true);
-  Serial.println("MPU6050 initialized and calibrated.");
+  mpu.calcGyroOffsets(true);                      // quick calibration
+
+  // ── Ethernet / W5500 ────────────────────────────────────────────
+  Ethernet.init(2);                               // CS pin for W5500
+  Ethernet.begin(mac, ip);
+  while (Ethernet.linkStatus() == LinkOFF) {
+    Serial.println("Waiting for Ethernet link…");
+    delay(500);
+  }
+  server.begin();
+  Serial.printf("IMU JSON stream ➜  http://%s:%u/\n",
+                Ethernet.localIP().toString().c_str(), IMU_PORT);
 }
 
-void loop() {
-    boolean biocr;
-    boolean biolf;
-    boolean doubleblank;
-    boolean singleblank;
+void loop()
+{
+  EthernetClient client = server.available();
+  static bool headerSent = false;
 
-    EthernetClient client = server.available();
-    if (client) {
-        Serial.println("new client");
-        // an http request ends with a blank line
-        doubleblank = false;
-        singleblank = true;
-        biocr = false;
-        biolf = false;
-
-        while (client.connected()) {
-            mpu.update();
-            float dataOut[6] = {
-                mpu.getAccX(),
-                mpu.getAccY(),
-                mpu.getAccZ(),
-                mpu.getGyroX(),
-                mpu.getGyroY(),
-                mpu.getGyroZ()
-            };
-
-            // Send raw float array over TCP
-            client.write(reinterpret_cast<uint8_t*>(dataOut), sizeof(dataOut));
-            // Serial.print(string(dataOut));
-            Serial.println(" Sent.");
-        }
-        delay(10);
-        client.stop();
-        Serial.println("client disconnected");
+  // ─── Handle an active connection ────────────────────────────────
+  if (client) {
+    if (!headerSent) {                       // send HTTP headers once
+      client.println(F("HTTP/1.1 200 OK"));
+      client.println(F("Content-Type: application/json"));
+      client.println(F("Access-Control-Allow-Origin: *"));
+      client.println();
+      headerSent = true;
+      Serial.println("Client connected");
     }
+
+    uint32_t now = micros();
+    if (now - lastSend >= PERIOD_US) {       // 100 Hz pacing
+      lastSend = now;
+
+      mpu.update();
+      float ax = mpu.getAccX(),  ay = mpu.getAccY(),  az = mpu.getAccZ();
+      float gx = mpu.getGyroX(), gy = mpu.getGyroY(), gz = mpu.getGyroZ();
+      float gNorm = sqrtf(ax*ax + ay*ay + az*az);
+      float gvx = ax / gNorm, gvy = ay / gNorm, gvz = az / gNorm;
+
+      char buf[192];
+      snprintf(buf, sizeof(buf),
+        "{\"t_us\":%lu,\"ax\":%.3f,\"ay\":%.3f,\"az\":%.3f,"
+        "\"gx\":%.3f,\"gy\":%.3f,\"gz\":%.3f,"
+        "\"gvx\":%.3f,\"gvy\":%.3f,\"gvz\":%.3f}\n",
+        (unsigned long)now, ax, ay, az, gx, gy, gz, gvx, gvy, gvz);
+      client.print(buf);
+    }
+
+    if (!client.connected()) {               // clean up on disconnect
+      client.stop();
+      headerSent = false;
+      Serial.println("Client disconnected");
+    }
+  }
 }

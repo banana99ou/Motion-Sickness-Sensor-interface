@@ -37,7 +37,7 @@ static const framesize_t CAM_RES = FRAMESIZE_VGA;   // camera resolution
 static const int        CAM_PORT = 8000;
 static const int        IMU_PORT = 8888;
 
-FLED_Intensity = 150; // Flash Brightness
+int FLED_Intensity = 80; // Flash Brightness
 
 // ──────────────────────────────────────────────────────────
 // GLOBALS & QUEUES

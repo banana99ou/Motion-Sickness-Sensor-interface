@@ -8,11 +8,18 @@ import time
 import datetime
 import os
 
-# ----- Configuration -----
-# ESP32_IP = "192.168.2.10"  # Replace with your ESP32's actual IP
-ESP32_IP = "192.168.2.2"
+# ----- Configuration -----\\
+# ESP32_IP_IMU = "192.168.2.2"
+ESP32_IP_IMU = "192.168.2.10"
+ESP32_PORT_IMU = "8888"
+
+# ESP32_IP_CAM = "192.168.2.2"
+ESP32_IP_CAM = "192.168.2.10"
+ESP32_PORT_CAM = "8000"
+
 IMU_WINDOW_SEC = 2.0       # Show last 2 seconds of IMU data
-save_data = True           # Set to True to record data
+# save_data = True           # Set to True to record data
+save_data = False
 
 # Global containers for saving files and recording
 imu_data = []              # List holding latest IMU samples (used for graphing)
@@ -35,7 +42,7 @@ def imu_stream_thread():
     Also, writes each sample to the CSV file if saving is enabled.
     """
     global imu_t0, imu_data, imu_file
-    stream_url = f"http://{ESP32_IP}:8888"
+    stream_url = f"http://{ESP32_IP_IMU}:{ESP32_PORT_IMU}"
     print(f"[IMU] Connecting to IMU stream at {stream_url}...")
     
     try:
@@ -84,7 +91,7 @@ def camera_and_display_thread():
     and saves each frame as an individual JPEG with a timestamp in its filename.
     """
     boundary = b"--123456789000000000000987654321"
-    stream_url = f"http://{ESP32_IP}:8000/stream"
+    stream_url = f"http://{ESP32_IP_CAM}:{ESP32_PORT_CAM}/stream"
 
     print(f"[Camera] Connecting to {stream_url}")
     r = requests.get(stream_url, stream=True, timeout=10)
@@ -220,15 +227,15 @@ if __name__ == '__main__':
         frames_folder = os.path.join(recording_folder, "frames")
         os.makedirs(frames_folder, exist_ok=True)
         # Prepare the IMU CSV file.
-        # imu_filename = os.path.join(recording_folder, f"imu_data_{dt_str}.csv")
-        # imu_file = open(imu_filename, "w")
-        # imu_file.write("t_us,t_s,t_rel,ax,ay,az,gx,gy,gz\n")
-        # print(f"[Main] Saving IMU data to {imu_filename}")
-        print(f"[Main] Saving individual frames into {frames_folder}")
+        imu_filename = os.path.join(recording_folder, f"imu_data_{dt_str}.csv")
+        imu_file = open(imu_filename, "w")
+        imu_file.write("t_us,t_s,t_rel,ax,ay,az,gx,gy,gz\n")
+        print(f"[Main] Saving IMU data to {imu_filename}")
+        # print(f"[Main] Saving individual frames into {frames_folder}")
 
     # Start the IMU stream thread.
-    # imu_thread = threading.Thread(target=imu_stream_thread, daemon=True)
-    # imu_thread.start()
+    imu_thread = threading.Thread(target=imu_stream_thread, daemon=True)
+    imu_thread.start()
 
     # Run the camera display/recording function (main thread).
     camera_and_display_thread()

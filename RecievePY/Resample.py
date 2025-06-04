@@ -13,7 +13,7 @@ Target_Hz = 100
 
 # 1) Load IMU CSV and show t_rel
 # imu_csv = glob.glob("recording_20250508_173409/imu_data_*.csv")[0]
-path = "recording_20250530_211205"
+path = "recording_20250603_165027"
 # imu_csv = glob.glob(f"{path}/imu_data_*.csv")[0]
 # imu_df = pd.read_csv(imu_csv, sep=",")
 print("=== IMU t_rel (s) ===")
