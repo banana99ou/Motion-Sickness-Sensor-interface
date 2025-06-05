@@ -10,3 +10,4 @@ imu_data_*.csv
 video_*.avi
 recording_*
 output.mp4
+Experiment\ Data/*
