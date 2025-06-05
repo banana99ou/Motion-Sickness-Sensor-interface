@@ -41,7 +41,7 @@
   const char* password = "12344321";
 #endif
 
-static const framesize_t CAM_RES = FRAMESIZE_VGA;   // change later if needed
+static const framesize_t CAM_RES = FRAMESIZE_HVGA;   // change later if needed
 static const int        CAM_PORT = 8000;
 static const int        IMU_PORT = 8888;
 
@@ -94,7 +94,7 @@ void setup() {
   cfg.xclk_freq_hz = 20000000;
   cfg.pixel_format = PIXFORMAT_JPEG;
   cfg.frame_size   = CAM_RES;
-  cfg.jpeg_quality = 20;
+  cfg.jpeg_quality = 24;
   cfg.fb_count     = 2;
   cfg.grab_mode    = CAMERA_GRAB_LATEST;
 
