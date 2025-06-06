@@ -1,6 +1,3 @@
-/*********************************************************************
- *  ESP32-CAM + W5500  ▸  MPU-6050 JSON streamer (no Wi-Fi / camera) *
- *********************************************************************/
 #include <SPI.h>
 #include <EthernetSPI2.h>
 #include <Wire.h>
@@ -38,8 +35,7 @@ void setup()
     delay(500);
   }
   server.begin();
-  Serial.printf("IMU JSON stream ➜  http://%s:%u/\n",
-                Ethernet.localIP().toString().c_str(), IMU_PORT);
+  Serial.printf("IMU JSON stream ➜  http://%s:%u/\n", Ethernet.localIP().toString().c_str(), IMU_PORT);
 }
 
 void loop()

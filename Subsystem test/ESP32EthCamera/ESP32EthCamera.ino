@@ -85,14 +85,14 @@ IPAddress ip(192, 168, 89, 11);
 EthernetServer server(8000);
 
 void setup() {
+  // ───── Flash ──────────────────────────────────────────────────────
   pinMode(LED, OUTPUT);
   pinMode(FLED, OUTPUT);
   pinMode(15, INPUT); // Pot input
   
-  // Open serial communications and wait for port to open:
   Serial.begin(115200);
 
-  // configure camera
+  // ───── Camera ─────────────────────────────────────────────────────
   camera_config_t cfg = {};
   cfg.ledc_channel = LEDC_CHANNEL_0;
   cfg.ledc_timer   = LEDC_TIMER_0;
@@ -284,3 +284,7 @@ void loop() {
   }
   delay(10);
 }
+/*
+  1. split stream_h to producer & broadcaster
+  2. run producer on a timer to achieve 30Hz time step
+*/

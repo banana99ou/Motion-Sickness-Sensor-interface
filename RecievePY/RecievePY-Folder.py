@@ -245,3 +245,8 @@ if __name__ == '__main__':
         imu_file.close()
 
     print("[Main] Data recording complete.")
+
+# 1. refactor code
+# 2. split camera_and_display_thread
+# 3. have a dedicated switch to choose witch reciving code to run
+# 4. make fps counter use t_us
