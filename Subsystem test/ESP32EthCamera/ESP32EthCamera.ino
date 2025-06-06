@@ -116,10 +116,12 @@ void setup() {
   cfg.grab_mode    = CAMERA_GRAB_LATEST;
   //init with high specs to pre-allocate larger buffers
   if(psramFound()){
+    Serial.println("psram found");
     cfg.frame_size = FRAMESIZE_UXGA;
     cfg.jpeg_quality = 10;
     cfg.fb_count = 2;
   } else {
+    Serial.println("psram not found");
     cfg.frame_size = FRAMESIZE_SVGA;
     cfg.jpeg_quality = 12;
     cfg.fb_count = 1;
