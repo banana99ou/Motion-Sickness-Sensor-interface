@@ -111,9 +111,9 @@ void setup() {
   cfg.xclk_freq_hz = 20000000;
   cfg.pixel_format = PIXFORMAT_JPEG;
   cfg.frame_size   = CAM_RES;
-  cfg.jpeg_quality = 20;                  // image quality lower the better
+  cfg.jpeg_quality = 20;                  // image quality. lower the better
   cfg.fb_count     = 2;
-  cfg.grab_mode    = CAMERA_GRAB_LATEST;  //! what does this do?
+  cfg.grab_mode    = CAMERA_GRAB_LATEST;
   //init with high specs to pre-allocate larger buffers
   if(psramFound()){
     cfg.frame_size = FRAMESIZE_UXGA;
@@ -199,7 +199,7 @@ void stream_h(EthernetClient *ec){
         return;
     }
 
-    if(fb->format != PIXFORMAT_JPEG){ // if not already jpg in framebuffer, convert to jpg
+    if(fb->format != PIXFORMAT_JPEG){     // if not already jpg in framebuffer, convert to jpg
       bool jpeg_converted = frame2jpg(fb, 80, &_jpg_buf, &_jpg_buf_len);
       esp_camera_fb_return(fb);
       fb = NULL;
@@ -212,7 +212,7 @@ void stream_h(EthernetClient *ec){
       _jpg_buf = fb->buf;
     }
 
-    uint64_t t_us = esp_timer_get_time();                    // µs since boot
+    uint64_t t_us = esp_timer_get_time();   // µs since boot
     size_t hlen = snprintf(part_buf, sizeof(part_buf), _STREAM_PART_TMPL, (unsigned long long)t_us, _jpg_buf_len);
     bytes_sent = ec->write((const char *)part_buf, hlen);
     if (bytes_sent != hlen) error_sending = true;
@@ -274,47 +274,7 @@ void loop() {
     biolf = false;
 
     while (client.connected()) {
-      // if (client.available()) {
-      //   char c = client.read();
-      //   //Serial.write(c);
-
-      //   if (c == '\n'){ //LF
-      //     if (biolf){
-      //       doubleblank = true; // \n\n
-      //       singleblank = true;
-      //     }
-      //     if (biocr){
-      //       if (singleblank) doubleblank = true; // \n\r\n
-      //       singleblank = true;
-      //     }
-      //     biolf = true;
-      //     biocr = false;
-      //   } else if (c == '\r'){ //CR
-      //     if (biocr){
-      //       doubleblank = true; //\r\r
-      //       singleblank = true;
-      //     }
-      //     if (biolf){
-      //       // \n\r
-      //     }
-          
-      //     biolf = false;
-      //     biocr = true;          
-      //   } else {
-      //     biolf = false;
-      //     biocr = false;
-      //     singleblank = false;
-      //     doubleblank = false;
-      //   }
-
-      //   if (doubleblank) {
-      //     stream_h(&client); // stream the jpeg's
-      //     singleblank = false;
-      //     doubleblank = false;          
-      //     break;
-      //   }
-      // }
-      stream_h(&client); // stream the jpeg's
+      stream_h(&client);
     }
     delay(10);
     client.stop();
