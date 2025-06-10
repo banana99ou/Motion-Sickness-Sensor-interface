@@ -69,15 +69,12 @@ static const char* _STREAM_PART_TMPL = "Content-Type: image/jpeg\r\n" "X-Timesta
 int Intensity = 0;
 int Prev_Intensity = 0;
 
-static const framesize_t CAM_RES = FRAMESIZE_QVGA;   // camera resolution
+static const framesize_t CAM_RES = FRAMESIZE_HVGA; // FRAMESIZE_QVGA (320 x 240), FRAMESIZE_CIF (352 x 288), FRAMESIZE_VGA (640 x 480), FRAMESIZE_SVGA (800 x 600), FRAMESIZE_XGA (1024 x 768), FRAMESIZE_SXGA (1280 x 1024), FRAMESIZE_UXGA (1600 x 1200)
 
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network:
-byte mac[] = {
-  0x02, 0xAB, 0xCD, 0xEF, 0x00, 0x01
-};
-//IPAddress ip(192, 168, 89, 11);
-IPAddress ip(192, 168, 89, 11);
+byte mac[] = { 0x02, 0xAB, 0xCD, 0xEF, 0x00, 0x01 };
+IPAddress ip(192, 168, 2, 2);
 
 // Initialize the Ethernet server library
 // with the IP address and port you want to use
@@ -109,9 +106,9 @@ void setup() {
   cfg.pin_pwdn  = PWDN_GPIO_NUM;
   cfg.pin_reset = RESET_GPIO_NUM;
   cfg.xclk_freq_hz = 20000000;
-  cfg.pixel_format = PIXFORMAT_JPEG;
+  cfg.pixel_format = PIXFORMAT_JPEG; //YUV422,GRAYSCALE,RGB565,JPEG
   cfg.frame_size   = CAM_RES;
-  cfg.jpeg_quality = 20;                  // image quality. lower the better
+  cfg.jpeg_quality = 20;             //10-63 lower number means higher quality
   cfg.fb_count     = 2;
   cfg.grab_mode    = CAMERA_GRAB_LATEST;
   //init with high specs to pre-allocate larger buffers
@@ -134,7 +131,12 @@ void setup() {
     return;
   }
 
+  // flip frames vertically
   sensor_t * s = esp_camera_sensor_get();
+  s->set_vflip(s, 1);
+  s->set_hmirror(s, 1);
+  s->set_brightness(s, 0);
+
   //initial sensors are flipped vertically and colors are a bit saturated
   if (s->id.PID == OV3660_PID) {
     s->set_vflip(s, 1);//flip it back
@@ -194,6 +196,16 @@ void stream_h(EthernetClient *ec){
   ec->println();
 
   while(true){
+    // Turn on Flash
+    Intensity = constrain(map(analogRead(15), 10, 4085, 255, 0), 0, 254);
+    if(abs(Prev_Intensity - Intensity) > 5){
+      if(Intensity < 11){
+        Intensity = 0;
+      }
+      analogWrite(FLED, Intensity);
+      Serial.println(Intensity);
+      Prev_Intensity = Intensity;
+    }
     error_sending = false;
     fb = esp_camera_fb_get();
     if (!fb) {
@@ -253,8 +265,11 @@ void stream_h(EthernetClient *ec){
 
 void loop() {
   // Turn on Flash
-  Intensity = map(analogRead(15), 0, 4085, 255, 0);
-  if(Prev_Intensity != Intensity){
+  Intensity = constrain(map(analogRead(15), 10, 4085, 255, 0), 0, 254);
+  if(abs(Prev_Intensity - Intensity) > 5){
+    if(Intensity < 11){
+      Intensity = 0;
+    }
     analogWrite(FLED, Intensity);
     Serial.println(Intensity);
     Prev_Intensity = Intensity;
