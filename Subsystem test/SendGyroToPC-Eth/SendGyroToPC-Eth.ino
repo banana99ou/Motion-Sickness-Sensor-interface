@@ -3,16 +3,25 @@
 #include <Wire.h>
 #include <MPU6050_tockn.h>
 
+// ───── LEDS ─────────────────────────────────────────────────────────
+#define LED 33
+#define FLED 4
+
 // ───── I²C (MPU-6050) ───────────────────────────────────────────────
 #define I2C_SDA   15
 #define I2C_SCL   16
 MPU6050 mpu(Wire);
 
 // ───── Ethernet / W5500 ─────────────────────────────────────────────
+// Enter a MAC address and IP address for your controller below.
+// The IP address will be dependent on your local network:
 byte mac[]      = { 0xAE, 0x4B, 0x92, 0xE1, 0x35, 0x7C };
-IPAddress ip    =  IPAddress(192, 168, 89, 11);     // adjust to your LAN
-const uint16_t  IMU_PORT = 8888;
-EthernetServer  server(IMU_PORT);
+IPAddress ip(192, 168, 2, 3);
+
+// Initialize the Ethernet server library
+// with the IP address and port you want to use
+// (port 80 is default for HTTP):
+EthernetServer  server(8888);
 
 // ───── Timing ──────────────────────────────────────────────────────
 const uint32_t  PERIOD_US = 10'000;   // 100 Hz
@@ -20,22 +29,67 @@ uint32_t        lastSend  = 0;
 
 void setup()
 {
+  pinMode(LED, OUTPUT);
+  pinMode(FLED, OUTPUT);
   Serial.begin(115200);
 
   // ── IMU ──────────────────────────────────────────────────────────
   Wire.begin(I2C_SDA, I2C_SCL, 400000);           // 400 kHz fast-mode
   mpu.begin();
+  Serial.println("cal");
   mpu.calcGyroOffsets(true);                      // quick calibration
+  Serial.println("fin");
 
   // ── Ethernet / W5500 ────────────────────────────────────────────
-  Ethernet.init(2);                               // CS pin for W5500
-  Ethernet.begin(mac, ip);
-  while (Ethernet.linkStatus() == LinkOFF) {
-    Serial.println("Waiting for Ethernet link…");
-    delay(500);
+  Ethernet.init(2);
+  //Ethernet.begin(mac, ip); // start the Ethernet connection and the server:
+  Ethernet.begin(mac); 
+
+  // Check for Ethernet hardware present
+  if (Ethernet.hardwareStatus() == EthernetNoHardware) {
+    Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
+    while (true) {
+    //   delay(200);
+    //   digitalWrite(LED, HIGH);
+    //   digitalWrite(FLED, HIGH);
+    //   delay(200);
+    //   digitalWrite(LED, LOW);
+    //   digitalWrite(FLED, LOW);
+    }
   }
+  while (Ethernet.linkStatus() == LinkOFF) {
+    Serial.println("Ethernet cable is NOT connected.");
+      // delay(500);
+      // digitalWrite(LED, HIGH);
+      // digitalWrite(FLED, HIGH);
+      // delay(500);
+      // digitalWrite(LED, LOW);
+      // digitalWrite(FLED, LOW);
+  }
+  
+  Serial.println("\nEthernet cable is now connected.");
+  
   server.begin();
-  Serial.printf("IMU JSON stream ➜  http://%s:%u/\n", Ethernet.localIP().toString().c_str(), IMU_PORT);
+  delay(500);
+  Serial.print("server is at ");
+  Serial.println(Ethernet.localIP());
+
+  LEDFLASHING();
+}
+
+void LEDFLASHING(){
+  delay(500);
+  digitalWrite(LED, HIGH);
+  digitalWrite(FLED, HIGH);
+  delay(500);
+  digitalWrite(LED, LOW);
+  digitalWrite(FLED, LOW);
+  delay(500);
+  digitalWrite(LED, HIGH);
+  digitalWrite(FLED, HIGH);
+  delay(500);
+  digitalWrite(LED, LOW);
+  digitalWrite(FLED, LOW);
 }
 
 void loop()
