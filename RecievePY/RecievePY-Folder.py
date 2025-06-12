@@ -9,12 +9,12 @@ import datetime
 import os
 
 # ----- Configuration -----\\
-# ESP32_IP_IMU = "192.168.2.2"
-ESP32_IP_IMU = "192.168.2.10"
+ESP32_IP_IMU = "192.168.2.3"
+# ESP32_IP_IMU = "192.168.2.10"
 ESP32_PORT_IMU = "8888"
 
-# ESP32_IP_CAM = "192.168.2.2"
-ESP32_IP_CAM = "192.168.2.10"
+ESP32_IP_CAM = "192.168.2.2"
+# ESP32_IP_CAM = "192.168.2.10"
 ESP32_PORT_CAM = "8000"
 
 IMU_WINDOW_SEC = 2.0       # Show last 2 seconds of IMU data
